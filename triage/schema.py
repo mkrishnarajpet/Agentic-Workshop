@@ -10,7 +10,8 @@ Category = Literal["billing", "bug", "access", "performance", "how-to"]
 Priority = Literal["P1", "P2", "P3", "P4"]
 Route = Literal["billing-team", "bug-team", "access-team", "performance-team", "how-to-team"]
 
-_SENTENCE_BREAK = re.compile(r"[.!?]\s+\S")
+_SENTENCE_BREAK = re.compile(r"([.!?])(\s*)(\w)")
+_SHORT_ABBREVIATIONS = {"e", "g", "i", "etc", "vs", "mr", "ms", "dr", "p", "no"}
 
 
 class TriageDecision(BaseModel):
@@ -29,8 +30,17 @@ class TriageDecision(BaseModel):
         text = value.strip()
         if not text:
             raise ValueError("rationale must not be empty")
-        if _SENTENCE_BREAK.search(text):
-            raise ValueError("rationale must be a single sentence")
+        if not re.search(r"\w", text):
+            raise ValueError("rationale must contain words")
+        for match in _SENTENCE_BREAK.finditer(text):
+            punctuation, whitespace, next_character = match.groups()
+            preceding_word = re.search(r"([A-Za-z]+)$", text[: match.start()])
+            preceding_word = preceding_word.group(1).lower() if preceding_word else ""
+            abbreviated = punctuation == "." and preceding_word in _SHORT_ABBREVIATIONS
+            adjacent_sentence = not whitespace and next_character.isalpha() and len(preceding_word) > 2
+            spaced_sentence = bool(whitespace) and not abbreviated
+            if punctuation in "!?" or adjacent_sentence or spaced_sentence:
+                raise ValueError("rationale must be a single sentence")
         return text
 
 
