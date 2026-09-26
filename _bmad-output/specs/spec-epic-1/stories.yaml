@@ -1,0 +1,18 @@
+- id: "1"
+  title: Triage decision schema
+  description: >-
+    Implement CAP-1 from SPEC.md so triage decisions accept only the allowed
+    category, priority, route, and one-sentence rationale fields, rejecting
+    anything else with a clear error.
+  spec_checkpoint: false
+  done_checkpoint: false
+  invoke_dev_with: ""
+- id: "2"
+  title: Repeatable seed data loader
+  description: >-
+    Implement CAP-2 from SPEC.md so uv run python load_seed.py loads the seed
+    ticket and customer CSVs into MCP-compatible app.db tables and produces the
+    same database state when run repeatedly.
+  spec_checkpoint: false
+  done_checkpoint: false
+  invoke_dev_with: ""
